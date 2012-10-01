@@ -2,7 +2,7 @@
  maxims
 ========
 
-`maxims`_ is a set of reusable Axiom items.
+`maxims`_ is set of tools and reusbale items for Axiom.
 
 .. _`maxims`: https://github.com/lvh/maxims
 

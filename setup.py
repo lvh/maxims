@@ -1,8 +1,8 @@
 from distutils.core import setup
 
 setup(name='maxims',
-      version='0',
-      description='A set of reusable Axiom items',
+      version='20121001',
+      description='A set of tools and reusbale items for Axiom',
       url='https://github.com/lvh/maxims',
 
       author='Laurens Van Houtven',
