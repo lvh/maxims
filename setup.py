@@ -8,7 +8,7 @@ setup(name='maxims',
       author='Laurens Van Houtven',
       author_email='_@lvh.cc',
 
-      packages=["maxims", "maxims.test"],
+      packages=["maxims", "maxims.contrib", "maxims.test"],
 
       license='ISC',
       classifiers=[
