@@ -29,9 +29,8 @@ def creationTime(item):
 def creationLogged(itemClass):
     """
     A decorator that makes the given item class automatically have its
-    creation time logged when its instances are activated (that is, added
-    to a store for the first time).
+    creation time logged when its instances are added to a store for the
+    first time.
     """
-    itemClass.activate = logCreation
+    itemClass.stored = logCreation
     return itemClass
-

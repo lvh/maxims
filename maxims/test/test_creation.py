@@ -9,7 +9,11 @@ from maxims import creation
 
 
 class SimpleItem(item.Item):
-    dummy = attributes.boolean()
+    activations = attributes.integer(default=0)
+
+
+    def activate(self):
+        self.activations += 1
 
 
 
@@ -27,6 +31,9 @@ def _getCreationTime(item):
 
 
 class _CreationTimeTests(object):
+    """
+    Assertions for creation time tests.
+    """
     _DELTA = timedelta(seconds=.1)
 
 
@@ -50,6 +57,23 @@ class LogCreationTests(_CreationTimeTests, unittest.TestCase):
         self.assertCreationTimeNotStored(simpleItem)
         creation.logCreation(simpleItem)
         self.assertCreationTimeStored(simpleItem)
+
+
+    def test_multipleActivations(self):
+        """
+        Tests that the time does not get updated when the item gets
+        activated twice.
+        """
+        testStore = store.Store()
+
+        simpleItem = SimpleItem(store=testStore)
+        creation.logCreation(simpleItem)
+        old = _getCreationTime(simpleItem).timestamp
+
+        testStore.objectCache.uncache(simpleItem.storeID, simpleItem)
+        testStore.getItemByID(simpleItem.storeID)
+        new = _getCreationTime(simpleItem).timestamp
+        self.assertEqual(old, new)
 
 
 
