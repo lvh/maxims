@@ -1,0 +1,3 @@
+# Contrib-only requirements
+txgeonames
+txeasymail
