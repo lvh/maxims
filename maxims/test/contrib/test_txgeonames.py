@@ -1,62 +1,50 @@
 try:
-    from txgeonames import client
+    from txgeonames import client, interface
     from maxims.contrib import txgeonames
-    client, txgeonames  # shut up pyflakes
-except ImportError:
-    client = txgeonames = None
+    txgeonames  # shut up pyflakes
+except ImportError:  # pragma: no cover
+    txgeonames = None
 
 import mock
 from axiom import store
-
 from twisted.trial import unittest
 
 
-def _makeClient():
-    c = txgeonames.PersistedGeonamesClient(
-        store=store.Store(),
-        username=u"x"
-    )
-    return c
+def _makePersistedClient(store):
+    return txgeonames.PersistedGeonamesClient(store=store, username=u"x")
+
 
 
 class ActivationTests(unittest.TestCase):
     """
-    Tests that the persisted client creates a real client on activation.
+    Tests that the persisted client creates a real client when activated.
     """
     skip = txgeonames is None
 
     def test_activate(self):
         with mock.patch("txgeonames.client.GeonamesClient") as m:
-            c = _makeClient()
+            c = _makePersistedClient(store.Store())
             m.assert_called_once_with(u"x")
-            self.assertIdentical(c._client, m.return_value)
+            self.assertIdentical(c.indirected, m.return_value)
 
 
 
-class InterfaceProxyingTests(unittest.TestCase):
+class PowerupTests(unittest.TestCase):
     """
-    Tests that attributes defined on the interface get proxied correctly,
-    and *only* those attributes do.
+    Tests that the persisted Geonames client works as a powerup.
     """
     skip = txgeonames is None
 
     def setUp(self):
-        self.client = _makeClient()
+        self.store = store.Store()
+        self.persisted = _makePersistedClient(self.store)
+        self.store.powerUp(self.persisted)
 
 
-    def test_interfaceMethod(self):
+    def test_powerup(self):
         """
-        Tests that interface attribute access on the persisted client gets
-        proxied to an actual client.
+        Tests that the store can be adapted.
         """
-        actual = self.client.postalCodeLookup.im_func
-        expected = client.GeonamesClient.postalCodeLookup.im_func
-        self.assertIdentical(actual, expected)
-
-
-    def test_noInterfaceMethod(self):
-        """
-        Tests that accessing attributes not defined on the interface raises
-        ``AttributeError``.
-        """
-        self.assertRaises(AttributeError, getattr, self.client, "BOGUS")
+        inMemory = interface.IGeonamesClient(self.store)
+        self.assertTrue(isinstance(inMemory, client.GeonamesClient))
+        self.assertIdentical(self.persisted.indirected, inMemory)
