@@ -5,8 +5,7 @@ try:
 except ImportError:  # pragma: no cover
     txgeonames = None
 
-import mock
-from axiom import store
+from maxims.test import indirection
 from twisted.trial import unittest
 
 
@@ -15,17 +14,17 @@ def _makePersistedClient(store):
 
 
 
-class ActivationTests(unittest.TestCase):
+class ActivationTests(indirection.ActivationTests, unittest.TestCase):
     """
     Tests that the persisted client creates a real client when activated.
     """
     skip = txgeonames is None
 
-    def test_activate(self):
-        with mock.patch("txgeonames.client.GeonamesClient") as m:
-            c = _makePersistedClient(store.Store())
-            m.assert_called_once_with(u"x")
-            self.assertIdentical(c.indirected, m.return_value)
+    makePersistedObject = staticmethod(_makePersistedClient)
+    implementationLocation = "txgeonames.client.GeonamesClient"
+
+    def _expectedCallArgs(self, persisted):
+        return u"x",
 
 
 
@@ -35,16 +34,6 @@ class PowerupTests(unittest.TestCase):
     """
     skip = txgeonames is None
 
-    def setUp(self):
-        self.store = store.Store()
-        self.persisted = _makePersistedClient(self.store)
-        self.store.powerUp(self.persisted)
-
-
-    def test_powerup(self):
-        """
-        Tests that the store can be adapted.
-        """
-        inMemory = interface.IGeonamesClient(self.store)
-        self.assertTrue(isinstance(inMemory, client.GeonamesClient))
-        self.assertIdentical(self.persisted.indirected, inMemory)
+    makePersistedObject = staticmethod(_makePersistedClient)
+    interface = interface.IGeonamesClient
+    implementation = client.GeonamesClient
