@@ -11,6 +11,8 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   items/index.rst
+   patterns/creation.rst
 
 
 Indices and tables
