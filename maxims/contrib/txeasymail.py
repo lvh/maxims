@@ -1,17 +1,22 @@
+"""
+Persistence for txeasymail.
+"""
 from __future__ import absolute_import
 
 from axiom import attributes, item
-from txeasymail import mailer
+from maxims import indirection
+from txeasymail import mailer, interface
 
 
-class MailerConfiguration(item.Item):
+@indirection.powerupIndirector(interface.IMailer)
+class PersistedMailer(item.Item):
+    """
+    A persisted mailer.
+    """
     endpoint = attributes.reference()
     credentials = attributes.reference()
+    indirected = attributes.inmemory()
 
-
-    def instantiate(self):
-        """
-        Instantiates a mailer from this configuration.
-        """
-        args = [a.instantiate() for a in (self.endpoint, self.credentials)]
-        return mailer.Mailer(*args)
+    def activate(self):
+        endpoint = self.endpoint.instantiate()
+        self.indirected = mailer.Mailer(endpoint, self.credentials)
