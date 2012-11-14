@@ -43,4 +43,3 @@ class PowerupTests(indirection.PowerupTests, unittest.TestCase):
 
     makePersistedObject = staticmethod(_makePersistedMailer)
     interface, implementation = interface.IMailer, mailer.Mailer
-
