@@ -1,8 +1,11 @@
 # Contrib-only requirements
 
-# txgeonames
-txgeonames
-
 # txeasymail
 pyOpenSSL
 txeasymail
+
+# txgeonames
+txgeonames
+
+# txscrypt
+txscrypt
