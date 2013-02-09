@@ -27,6 +27,12 @@ class ClientEndpoint(_Endpoint, item.Item):
 
     factory = staticmethod(endpoints.clientFromString)
 
+    def connect(self, factory):
+        """
+        Connects the factory to the persisted endpoint.
+        """
+        return self.instantiate().connect(factory)
+
 
 
 class ServerEndpoint(item.Item, _Endpoint):
@@ -37,3 +43,9 @@ class ServerEndpoint(item.Item, _Endpoint):
     _cachedEndpoint = attributes.inmemory()
 
     factory = staticmethod(endpoints.serverFromString)
+
+    def listen(self, factory):
+        """
+        Listens with the factory on the connected endpoint.
+        """
+        return self.instantiate().listen(factory)

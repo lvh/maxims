@@ -42,6 +42,21 @@ class ClientEndpointTests(_EndpointTests, unittest.TestCase):
         self.assertEqual(ep._port, 1)
 
 
+    def test_connect(self):
+        """
+        Tests using the stored endpoint directly to connect.
+
+        This checks that the ``connect`` method gets called with the
+        correct factory and that the return value is correctly passed
+        through.
+        """
+        self.endpoint._cachedEndpoint = m = _MockClientEndpoint()
+        factory = object()
+        connectReturnValue = self.endpoint.connect(factory)
+        self.assertIdentical(m.factory, factory)
+        self.assertIdentical(m.connectReturnValue, connectReturnValue)
+
+
 
 class ServerEndpointTests(_EndpointTests, unittest.TestCase):
     """
@@ -57,3 +72,42 @@ class ServerEndpointTests(_EndpointTests, unittest.TestCase):
         ep = me.ServerEndpoint(description="tcp:1").instantiate()
         self.assertTrue(isinstance(ep, endpoints.TCP4ServerEndpoint))
         self.assertEqual(ep._port, 1)
+
+
+    def test_listen(self):
+        """
+        Tests using the stored endpoint directly to listen.
+
+        This checks that the ``connect`` method gets called with the
+        correct factory and that the return value is correctly passed
+        through.
+        """
+        self.endpoint._cachedEndpoint = m = _MockServerEndpoint()
+        factory = object()
+        listenReturnValue = self.endpoint.listen(factory)
+        self.assertIdentical(m.factory, factory)
+        self.assertIdentical(m.listenReturnValue, listenReturnValue)
+
+
+
+class _MockClientEndpoint(object):
+    def __init__(self):
+        self.factory = None
+        self.connectReturnValue = object()
+
+
+    def connect(self, factory):
+        self.factory = factory
+        return self.connectReturnValue
+
+
+
+class _MockServerEndpoint(object):
+    def __init__(self):
+        self.factory = None
+        self.listenReturnValue = object()
+
+
+    def listen(self, factory):
+        self.factory = factory
+        return self.listenReturnValue
