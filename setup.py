@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name='maxims',
-      version='20130209',
+      version='0.0.1',
       description='A set of tools and reusbale items for Axiom',
       url='https://github.com/lvh/maxims',
 
