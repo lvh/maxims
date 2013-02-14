@@ -34,6 +34,7 @@ class StoredLaser(item.Item):
 
 
 
+@interface.implementer(ILaser)
 class Laser(object):
     """
     A laser.
