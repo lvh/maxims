@@ -60,5 +60,5 @@ class Example(object):
 
     def exemplify(self):
         """
-        Exemplfiies the self.
+        Exemplifies the self.
         """
