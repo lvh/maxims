@@ -8,4 +8,4 @@ txeasymail
 txgeonames
 
 # txscrypt
-txscrypt
+txscrypt>=0.0.1

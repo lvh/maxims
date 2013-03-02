@@ -4,7 +4,8 @@ Support for credentials stored using txscrypt.
 from __future__ import absolute_import
 
 from axiom import attributes, item
-from twisted.cred import credentials
+from twisted.cred import credentials, error as ce
+from twisted.internet import defer
 from txscrypt import wrapper as txsw
 from zope import interface
 
@@ -22,9 +23,9 @@ class UsernameScryptedPassword(item.Item):
     def checkPassword(self, password):
         """
         Checks that the provided password is the same as the one used to
-        create this set of credentials..
+        create this set of credentials.
         """
-        return txsw.verifyPassword(self._encrypted, password)
+        return txsw.checkPassword(self._encrypted, password)
 
 
     @classmethod

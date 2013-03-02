@@ -7,8 +7,6 @@ try:
 except ImportError:  # pragma: no cover
     txscrypt = None
 
-import mock
-
 from axiom import store
 from twisted.cred import credentials
 from twisted.internet import defer
@@ -21,58 +19,36 @@ class UsernameScryptedPasswordTests(unittest.TestCase):
     """
     skip = txscrypt is None
 
+    @defer.inlineCallbacks
     def setUp(self):
-        p = mock.patch("txscrypt.wrapper.verifyPassword")
-        self.mockVerifyPassword = p.start()
-        self.mockVerifyPassword.return_value = defer.succeed(True)
-        self.addCleanup(p.stop)
-
-        p = mock.patch("txscrypt.wrapper.computeKey")
-        self.mockComputeKey = p.start()
-        self.mockComputeKey.return_value = defer.succeed("key")
-        self.addCleanup(p.stop)
+        storePassword = txscrypt.UsernameScryptedPassword.storePassword
+        self.stored = yield storePassword("u", "p", maxTime=0.0001)
 
 
+    @defer.inlineCallbacks
+    def _assertStoredPasswordWorks(self, stored):
+        yield stored.checkPassword("p").addCallback(self.assertEqual, True)
+        yield stored.checkPassword("x").addCallback(self.assertEqual, False)
+
+ 
     def test_checkPassword(self):
         """
-        Tests that ``checkPassword`` defers to txscrypt's ``verifyPassword``.
+        Tests that when the right password is provided, ``checkPassword``
+        returns ``True``, and when the wrong password is provided, it returns
+        ``False``.
         """
-        c = txscrypt.UsernameScryptedPassword(username="u", _encrypted="key")
-        c.checkPassword("provided")
-        self.mockVerifyPassword.assert_called_once_with("key", "provided")
+        return self._assertStoredPasswordWorks(self.stored)
 
 
-    def test_storePassword(self):
-        """
-        Tests that ``storePassword`` defers to txscrypt's ``computeKey``, and
-        then stores its return value.
-        """
-        d = txscrypt.UsernameScryptedPassword.storePassword("u", "p", kw=1)
-        self.mockComputeKey.assert_called_once_with("p", kw=1)
-        return d.addCallback(self._checkUsernameHashedPassword)
-
-
+    @defer.inlineCallbacks
     def test_addPowerupFor(self):
         """
         Tests that the class can correctly install a powerup on a store.
         """
         s = store.Store()
-        d = txscrypt.UsernameScryptedPassword.addPowerupFor(s, "u", "p", kw=1)
-        self.mockComputeKey.assert_called_once_with("p", kw=1)
+        addPowerupFor = txscrypt.UsernameScryptedPassword.addPowerupFor
+        returned = yield addPowerupFor(s, "u", "p", maxTime=0.001)
 
-        @d.addCallback
-        def checkPowerup(usernameHashedPassword):
-            powerup = credentials.IUsernameHashedPassword(s)
-            self.assertIdentical(powerup, usernameHashedPassword)
-            self._checkUsernameHashedPassword(usernameHashedPassword)
-
-        return d
-
-
-    def _checkUsernameHashedPassword(self, usernameHashedPassword):
-        """
-        Tests that the ``usernameHashedPassword`` has username and _encrypted
-        attributes set to the appropriate values.
-        """
-        self.assertEqual(usernameHashedPassword.username, "u")
-        self.assertEqual(usernameHashedPassword._encrypted, "key")
+        stored = credentials.IUsernameHashedPassword(s)
+        self.assertIdentical(returned, stored)
+        yield self._assertStoredPasswordWorks(stored)
