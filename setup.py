@@ -22,4 +22,3 @@ setup(name='maxims',
         "License :: OSI Approved :: ISC License (ISCL)",
         ]
 )
-
