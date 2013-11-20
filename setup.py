@@ -11,7 +11,7 @@ setup(name='maxims',
       url='https://github.com/lvh/maxims',
 
       author='Laurens Van Houtven',
-      author_email='_@lvh.cc',
+      author_email='_@lvh.io',
 
       packages=["maxims", "maxims.contrib", "maxims.test"],
 
