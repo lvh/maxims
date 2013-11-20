@@ -7,7 +7,7 @@ versionString = match.group(1)
 
 setup(name='maxims',
       version=versionString,
-      description='A set of tools and reusbale items for Axiom',
+      description='A set of tools and reusable items for Axiom',
       url='https://github.com/lvh/maxims',
 
       author='Laurens Van Houtven',
